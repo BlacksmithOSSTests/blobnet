@@ -1,17 +1,19 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
+  strategy:
+      matrix:
+        platform: [ubuntu-latest, blacksmith-staging, blacksmith]
   rust:
     name: Lint and Test
-    runs-on: ubuntu-latest
+    runs-on: {{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
 
@@ -21,7 +23,7 @@ jobs:
           toolchain: stable
           components: clippy
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: useblacksmith/rust-cache@v3
 
       - run: cargo build --all-features
 
@@ -31,7 +33,7 @@ jobs:
 
   rustfmt:
     name: Rustfmt
-    runs-on: ubuntu-latest
+    runs-on: {{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
 
