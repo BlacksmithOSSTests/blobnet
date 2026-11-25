@@ -30,7 +30,10 @@ pub struct Retry {
 
 impl Retry {
     /// Construct a new [`Retry`] object with default parameters.
+    ///
+    /// Panics if `name` is empty.
     pub const fn new(name: &'static str) -> Self {
+        assert!(!name.is_empty(), "retry name cannot be empty");
         Self {
             name,
             attempts: 3,
@@ -101,6 +104,12 @@ mod tests {
             .attempts(0)
             .run(|| async { Ok::<_, std::io::Error>(()) })
             .await;
+    }
+
+    #[test]
+    #[should_panic(expected = "retry name cannot be empty")]
+    fn empty_name() {
+        let _ = Retry::new("");
     }
 
     #[tokio::test]
